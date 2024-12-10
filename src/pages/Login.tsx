@@ -1,10 +1,15 @@
 import { Link } from "react-router-dom";
-import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
-import React from "react";
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  sendPasswordResetEmail,
+} from "firebase/auth";
+import React, { useRef } from "react";
 
 function Login() {
   // Handle form submission
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    const form = e.target as HTMLFormElement;
     e.preventDefault();
 
     // Extract email and password from form
@@ -16,7 +21,10 @@ function Login() {
       .then((userCredential) => {
         // Signed in successfully
         const user = userCredential.user;
-        console.log(user);
+        if (user.emailVerified) {
+          console.log(user);
+        }
+        form.reset();
       })
       .catch((error) => {
         // Handle errors
@@ -24,6 +32,30 @@ function Login() {
         const errorMessage = error.message;
         console.log(errorCode, errorMessage);
       });
+  };
+
+  const forgetRef = useRef<HTMLInputElement>(null);
+  const handleForget = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    e.preventDefault();
+   
+
+     // Access the input value using the ref
+     const email = forgetRef.current?.value;
+
+   if (email) {
+      const auth = getAuth();
+      sendPasswordResetEmail(auth, email)
+        .then(() => {
+          console.log("Password reset email sent!");
+        })
+        .catch((error) => {
+          const errorCode = error.code;
+          const errorMessage = error.message;
+          console.log(errorCode, errorMessage);
+        });
+    } else {
+      console.log("Email field is empty");
+    }
   };
 
   return (
@@ -37,6 +69,7 @@ function Login() {
                 <span className="label-text">Email</span>
               </label>
               <input
+                ref={forgetRef}
                 type="email"
                 name="email"
                 autoComplete="email"
@@ -66,6 +99,9 @@ function Login() {
                 </Link>
               </label>
             </div>
+            <button type="button" onClick={handleForget} className="underline font-bold">
+              Forget password
+            </button>
             <div className="form-control mt-6">
               <button type="submit" className="btn btn-primary">
                 Login
