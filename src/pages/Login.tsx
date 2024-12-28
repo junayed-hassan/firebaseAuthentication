@@ -1,8 +1,8 @@
 import { Link } from "react-router-dom";
 import {
-  getAuth,
   signInWithEmailAndPassword,
   sendPasswordResetEmail,
+  getAuth,
 } from "firebase/auth";
 import React, { useRef } from "react";
 
@@ -112,6 +112,6 @@ function Login() {
       </div>
     </div>
   );
-}
+};
 
 export default Login;
